@@ -7,7 +7,7 @@ st.set_page_config(page_title="AUC Glucosa (mg/dL)", layout="centered")
 
 st.title("📈 Área Bajo la Curva (AUC) – Curva de Tolerancia a la Glucosa")
 st.markdown("""
-Ingresa pares de **tiempo (minutos)** y **glucosa (mg/dL)** para calcular el Área Bajo la Curva (**AUC**) con el método del trapecio.
+Ingresa tus datos con el tiempo en minutos y la glucosa en **(mg/dL)** para calcular el Área Bajo la Curva (**AUC**) con el método del trapecio.
 """)
 
 # Datos por defecto (valores en mg/dL)
@@ -17,7 +17,7 @@ default_data = pd.DataFrame({
 })
 
 # Entrada editable
-st.subheader("✍️ Ingreso de datos")
+st.subheader("✍️ Ingresa los datos")
 df = st.data_editor(
     default_data,
     num_rows="dynamic",
@@ -42,10 +42,10 @@ else:
         interp = "✅ Respuesta normal a la glucosa."
         color = "green"
     elif auc < 22000:
-        interp = "🟡 Intolerancia a la glucosa. Observar con atención."
+        interp = "🟡 Intolerancia a la glucosa. Observar con atención (consulta médica sugerida)."
         color = "gold"
     else:
-        interp = "🔴 Posible diabetes o hiperglucemia sostenida."
+        interp = "🔴 Posible diabetes o hiperglucemia sostenida (consulta médica importante)."
         color = "red"
 
     # Resultado
