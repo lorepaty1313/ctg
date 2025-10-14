@@ -6,49 +6,42 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="AUC Glucosa", layout="centered")
 
 st.title("📈 Área Bajo la Curva (AUC) – Curva de Tolerancia a la Glucosa")
+st.markdown("Ingresa pares de tiempo y glucosa para calcular el área bajo la curva (AUC). Puedes agregar o eliminar filas.")
 
-st.markdown("Ingresa los niveles de glucosa (mmol/L) en los diferentes tiempos medidos.")
-
-# Tiempos comunes para la prueba
-tiempos = [0, 30, 60, 90, 120]
-glucosa = []
-
-st.header("1. Ingresa tus datos")
-
-# Inputs
-for t in tiempos:
-    val = st.number_input(
-        f"Glucosa a los {t} minutos (mmol/L)",
-        min_value=0.0,
-        step=0.1,
-        format="%.1f",
-        key=f"glucosa_{t}"
-    )
-    glucosa.append(val)
-
-# Crear dataframe
-df = pd.DataFrame({
-    "Tiempo (min)": tiempos,
-    "Glucosa (mmol/L)": glucosa
+# Valores iniciales
+default_data = pd.DataFrame({
+    "Tiempo (min)": [0, 30, 60, 90, 120],
+    "Glucosa (mmol/L)": [5.2, 7.8, 8.5, 7.2, 5.9]
 })
 
-# Mostrar tabla
-st.subheader("📊 Datos ingresados")
-st.dataframe(df)
+# Edición de datos en tabla
+st.subheader("✍️ Ingreso de datos")
+df = st.data_editor(
+    default_data,
+    num_rows="dynamic",
+    use_container_width=True
+)
 
-# Calcular AUC
-auc = np.trapz(df["Glucosa (mmol/L)"], df["Tiempo (min)"])
+# Verificación
+if len(df) < 2:
+    st.warning("Debes ingresar al menos dos puntos para calcular el AUC.")
+else:
+    # Ordenar por tiempo por si acaso
+    df = df.sort_values(by="Tiempo (min)")
 
-# Mostrar resultado
-st.subheader("📐 Resultado")
-st.success(f"Área Bajo la Curva (AUC): **{auc:.2f} mmol·min/L**")
+    # Calcular AUC
+    auc = np.trapz(df["Glucosa (mmol/L)"], df["Tiempo (min)"])
 
-# Gráfica
-st.subheader("📈 Gráfica de la Curva de Glucosa")
-fig, ax = plt.subplots()
-ax.plot(df["Tiempo (min)"], df["Glucosa (mmol/L)"], marker='o', color="mediumvioletred")
-ax.fill_between(df["Tiempo (min)"], df["Glucosa (mmol/L)"], alpha=0.3, color="mediumvioletred")
-ax.set_xlabel("Tiempo (min)")
-ax.set_ylabel("Glucosa (mmol/L)")
-ax.set_title("Curva de Tolerancia a la Glucosa")
-st.pyplot(fig)
+    # Mostrar resultados
+    st.subheader("📐 Resultado")
+    st.success(f"Área Bajo la Curva (AUC): **{auc:.2f} mmol·min/L**")
+
+    # Gráfica
+    st.subheader("📈 Gráfica de la Curva")
+    fig, ax = plt.subplots()
+    ax.plot(df["Tiempo (min)"], df["Glucosa (mmol/L)"], marker='o', color="mediumvioletred")
+    ax.fill_between(df["Tiempo (min)"], df["Glucosa (mmol/L)"], alpha=0.3, color="mediumvioletred")
+    ax.set_xlabel("Tiempo (min)")
+    ax.set_ylabel("Glucosa (mmol/L)")
+    ax.set_title("Curva de Tolerancia a la Glucosa")
+    st.pyplot(fig)
